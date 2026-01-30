@@ -1,0 +1,48 @@
+# ============================================
+# Root .dockerignore - Exclude unnecessary files
+# ============================================
+
+# Version Control
+.git
+.gitignore
+.gitattributes
+.github
+
+# Documentation
+*.md
+docs/
+!DOCKER_SETUP.md
+!QUICKSTART.md
+
+# IDE & Editor Files
+.vscode
+.idea
+*.sublime-workspace
+*.sublime-project
+.DS_Store
+Thumbs.db
+
+# Environment Files (only in root, subdirs have their own)
+.env
+.env.local
+.env.*.local
+
+# Node modules (handled by frontend Dockerfile)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS Files
+.AppleDouble
+.LSOverride
+._*
+
+# CI/CD
+.gitlab-ci.yml
+.github/
+Jenkinsfile
+
+# Temporary
+tmp/
+temp/
+*.tmp

@@ -1,0 +1,95 @@
+<?php
+
+namespace App\Models;
+
+// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Tymon\JwtAuth\Contracts\JwtSubject;
+
+class User extends Authenticatable implements JwtSubject
+{
+    /** @use HasFactory<\Database\Factories\UserFactory> */
+    use HasFactory, Notifiable, SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+    ];
+
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+            'password' => 'hashed',
+        ];
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJwtIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJwtCustomClaims()
+    {
+        return [
+            'email' => $this->email,
+            'name' => $this->name,
+        ];
+    }
+
+    /**
+     * Relación: Un usuario tiene muchos favoritos
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function favorites()
+    {
+        return $this->hasMany(Favorite::class);
+    }
+
+    /**
+     * Scope para buscar por email
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param string $email
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeByEmail($query, $email)
+    {
+        return $query->where('email', $email);
+    }
+}

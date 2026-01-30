@@ -1,0 +1,66 @@
+# ============================================
+# Frontend .dockerignore - Exclude unnecessary files
+# ============================================
+
+# Version Control
+.git
+.gitignore
+.gitattributes
+
+# IDE & Editor Files
+.vscode
+.idea
+*.sublime-workspace
+*.sublime-project
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Documentation
+*.md
+docs/
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# Node Dependencies (will be installed during build)
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build Output
+.next/
+dist/
+build/
+out/
+
+# Testing
+coverage/
+.jest
+__tests__/
+
+# Temporary Files
+tmp/
+temp/
+*.tmp
+
+# OS Files
+.AppleDouble
+.LSOverride
+._*
+
+# Development Files
+.env.development.local
+.eslintcache
+
+# Logs
+*.log
+logs/
+
+# Misc
+.turbo
