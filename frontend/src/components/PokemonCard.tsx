@@ -56,8 +56,8 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
 
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-2 ${
-      isFavorite 
-        ? 'border-yellow-400 dark:border-yellow-500 ring-2 ring-yellow-200 dark:ring-yellow-900/50' 
+      isFavorite
+        ? 'border-yellow-400 dark:border-yellow-500 ring-2 ring-yellow-200 dark:ring-yellow-900/50'
         : 'border-gray-200 dark:border-gray-700'
     }`}>
       {/* Image Container */}
@@ -95,8 +95,8 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
           >
             <svg
               className={`w-6 h-6 transition-all duration-200 ${
-                isFavorite 
-                  ? 'fill-yellow-400 dark:fill-yellow-500 text-yellow-400 dark:text-yellow-500 drop-shadow-md' 
+                isFavorite
+                  ? 'fill-yellow-400 dark:fill-yellow-500 text-yellow-400 dark:text-yellow-500 drop-shadow-md'
                   : 'fill-none text-gray-400 dark:text-gray-500'
               }`}
               xmlns="http://www.w3.org/2000/svg"
@@ -130,8 +130,8 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
 
         {/* Pokemon Name */}
         <h3 className={`text-lg font-bold mb-2 truncate transition-colors ${
-          isFavorite 
-            ? 'text-yellow-700 dark:text-yellow-400' 
+          isFavorite
+            ? 'text-yellow-700 dark:text-yellow-400'
             : 'text-gray-900 dark:text-white'
         }`}>
           {formatPokemonName(pokemon.name)}

@@ -9,10 +9,10 @@ use Tests\TestCase;
 
 /**
  * FavoriteControllerTest
- * 
+ *
  * Tests de integración para FavoriteController
  * Prueba endpoints HTTP completos
- * 
+ *
  * @package Tests\Feature\Controllers
  */
 class FavoriteControllerTest extends TestCase
@@ -23,7 +23,7 @@ class FavoriteControllerTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Crear usuario y token
         $this->user = User::factory()->create([
             'email' => 'test@example.com',
@@ -76,7 +76,7 @@ class FavoriteControllerTest extends TestCase
             'success' => true,
             'message' => 'Pokemon added to favorites',
         ]);
-        
+
         $this->assertDatabaseHas('favorites', [
             'user_id' => $this->user->id,
             'pokemon_id' => 1,
@@ -190,7 +190,7 @@ class FavoriteControllerTest extends TestCase
             'success' => true,
             'message' => 'Pokemon removed from favorites',
         ]);
-        
+
         $this->assertDatabaseMissing('favorites', [
             'id' => $favorite->id,
         ]);

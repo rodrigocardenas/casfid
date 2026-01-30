@@ -16,7 +16,7 @@ abstract class PestTestCase extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Migration runs automatically with RefreshDatabase
     }
 

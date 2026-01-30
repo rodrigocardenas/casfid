@@ -49,12 +49,12 @@ export const isAuthenticated = (): boolean => {
 // Login
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
-  
+
   if (response.token && response.user) {
     localStorage.setItem(TOKEN_KEY, response.token);
     localStorage.setItem(USER_KEY, JSON.stringify(response.user));
   }
-  
+
   return response;
 };
 
@@ -63,12 +63,12 @@ export const register = async (
   credentials: RegisterCredentials
 ): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>('/auth/register', credentials);
-  
+
   if (response.token && response.user) {
     localStorage.setItem(TOKEN_KEY, response.token);
     localStorage.setItem(USER_KEY, JSON.stringify(response.user));
   }
-  
+
   return response;
 };
 
@@ -83,7 +83,7 @@ export const verifyToken = async (): Promise<boolean> => {
   try {
     const token = getToken();
     if (!token) return false;
-    
+
     // Llamar a un endpoint para verificar el token
     await apiClient.get('/auth/verify');
     return true;

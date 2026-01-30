@@ -6,16 +6,16 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * FavoriteRequest
- * 
+ *
  * Validación para POST /api/v1/favorites
- * 
+ *
  * @package App\Http\Requests
  */
 class FavoriteRequest extends FormRequest
 {
     /**
      * Determinar si el usuario está autorizado a hacer esta petición
-     * 
+     *
      * @return bool
      */
     public function authorize(): bool
@@ -25,7 +25,7 @@ class FavoriteRequest extends FormRequest
 
     /**
      * Obtener las reglas de validación
-     * 
+     *
      * @return array
      */
     public function rules(): array
@@ -37,7 +37,7 @@ class FavoriteRequest extends FormRequest
 
     /**
      * Mensajes de validación personalizados
-     * 
+     *
      * @return array
      */
     public function messages(): array
@@ -52,7 +52,7 @@ class FavoriteRequest extends FormRequest
 
     /**
      * Nombres de atributos personalizados
-     * 
+     *
      * @return array
      */
     public function attributes(): array

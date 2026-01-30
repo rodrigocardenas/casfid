@@ -11,13 +11,13 @@ use Exception;
 
 /**
  * FavoriteService
- * 
+ *
  * Servicio para gestionar pokémon favoritos de usuarios
  * - Valida que el pokémon exista en PokeAPI
  * - Guarda/elimina favoritos de la base de datos
  * - Vincula favoritos al usuario autenticado
  * - Maneja excepciones y errores gracefully
- * 
+ *
  * @package App\Services
  */
 class FavoriteService
@@ -34,7 +34,7 @@ class FavoriteService
 
     /**
      * Agrega un pokémon a favoritos del usuario
-     * 
+     *
      * @param User $user Usuario autenticado
      * @param int $pokemonId ID del pokémon (1-150)
      * @return Favorite
@@ -82,7 +82,7 @@ class FavoriteService
 
     /**
      * Elimina un pokémon de favoritos del usuario
-     * 
+     *
      * @param User $user Usuario autenticado
      * @param int $pokemonId ID del pokémon
      * @return bool
@@ -120,7 +120,7 @@ class FavoriteService
 
     /**
      * Obtiene todos los favoritos del usuario
-     * 
+     *
      * @param User $user Usuario autenticado
      * @return Collection
      */
@@ -148,7 +148,7 @@ class FavoriteService
 
     /**
      * Comprueba si un pokémon está en favoritos del usuario
-     * 
+     *
      * @param User $user Usuario autenticado
      * @param int $pokemonId ID del pokémon
      * @return bool
@@ -162,7 +162,7 @@ class FavoriteService
 
     /**
      * Valida que un pokémon exista en PokeAPI
-     * 
+     *
      * @param int $pokemonId ID del pokémon
      * @return array Datos del pokémon {id, name, types}
      * @throws Exception
@@ -197,12 +197,12 @@ class FavoriteService
             if ($e->getCode() === 404 || $e->getCode() === 400) {
                 throw $e;
             }
-            
+
             Log::error('Error validating pokemon in PokeAPI', [
                 'error' => $e->getMessage(),
                 'pokemon_id' => $pokemonId,
             ]);
-            
+
             throw new Exception('Failed to validate pokemon from PokeAPI', 503, $e);
         }
     }

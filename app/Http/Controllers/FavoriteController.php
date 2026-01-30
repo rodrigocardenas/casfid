@@ -11,21 +11,21 @@ use Exception;
 
 /**
  * FavoriteController
- * 
+ *
  * Endpoints para gestionar favoritos de pokémon:
  * - POST /api/v1/favorites (agregar)
  * - DELETE /api/v1/favorites/{pokemon_id} (eliminar)
  * - GET /api/v1/favorites (listar)
- * 
+ *
  * Todos los endpoints requieren autenticación JWT
- * 
+ *
  * @package App\Http\Controllers
  */
 class FavoriteController extends Controller
 {
     /**
      * Inyectar FavoriteService
-     * 
+     *
      * @param FavoriteService $favoriteService
      */
     public function __construct(
@@ -35,12 +35,12 @@ class FavoriteController extends Controller
 
     /**
      * Agrega un pokémon a favoritos del usuario autenticado
-     * 
+     *
      * Request Body:
      * {
      *   "pokemon_id": 1
      * }
-     * 
+     *
      * Response 201 Created:
      * {
      *   "success": true,
@@ -56,28 +56,28 @@ class FavoriteController extends Controller
      *   "message": "Pokemon added to favorites",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * Response 409 Conflict (ya está en favoritos):
      * {
      *   "success": false,
      *   "error": "Pokemon already in favorites",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * Response 400 Bad Request (ID inválido):
      * {
      *   "success": false,
      *   "error": "Invalid pokemon ID. Must be between 1 and 150",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * Response 503 Service Unavailable (PokeAPI falla):
      * {
      *   "success": false,
      *   "error": "Failed to validate pokemon from PokeAPI",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */
@@ -150,24 +150,24 @@ class FavoriteController extends Controller
 
     /**
      * Elimina un pokémon de favoritos del usuario autenticado
-     * 
+     *
      * URL Parameters:
      * - pokemon_id (int): ID del pokémon
-     * 
+     *
      * Response 200 OK:
      * {
      *   "success": true,
      *   "message": "Pokemon removed from favorites",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * Response 404 Not Found:
      * {
      *   "success": false,
      *   "error": "Favorite not found",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * @param int $pokemonId
      * @return JsonResponse
      */
@@ -222,11 +222,11 @@ class FavoriteController extends Controller
 
     /**
      * Obtiene lista de favoritos del usuario autenticado
-     * 
+     *
      * Query Parameters:
      * - page (int): Número de página (default 1)
      * - per_page (int): Items por página (default 20, max 50)
-     * 
+     *
      * Response 200 OK:
      * {
      *   "success": true,
@@ -250,7 +250,7 @@ class FavoriteController extends Controller
      *   },
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */

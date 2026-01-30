@@ -11,10 +11,10 @@ use Tests\TestCase as BaseTestCase;
 
 /**
  * FavoriteServiceTest
- * 
+ *
  * Tests unitarios para FavoriteService
  * Usa Mocks para simular llamadas HTTP a PokeAPI
- * 
+ *
  * @package Tests\Unit\Services
  */
 class FavoriteServiceTest extends BaseTestCase
@@ -57,7 +57,7 @@ class FavoriteServiceTest extends BaseTestCase
         $this->assertEquals('Bulbasaur', $favorite->pokemon_name);
         $this->assertStringContainsString('grass', $favorite->pokemon_type);
         $this->assertStringContainsString('poison', $favorite->pokemon_type);
-        
+
         // Verificar que está en la base de datos
         $this->assertDatabaseHas('favorites', [
             'user_id' => $user->id,

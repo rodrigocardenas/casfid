@@ -19,7 +19,7 @@ class RemoveFavoriteTest extends TestCase
         parent::setUp();
         $this->user = User::factory()->create();
         $this->pokemon = Pokemon::factory()->create();
-        
+
         // Add pokemon to favorites initially
         $this->user->favorites()->attach($this->pokemon->id);
     }
