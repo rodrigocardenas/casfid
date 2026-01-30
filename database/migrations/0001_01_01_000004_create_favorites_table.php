@@ -17,9 +17,12 @@ return new class extends Migration
                 ->constrained('users')
                 ->onDelete('cascade');
 
-            $table->unsignedInteger('pokemon_id');
-            $table->string('pokemon_name');
-            $table->string('pokemon_type');
+            $table->foreignId('pokemon_id')
+                ->constrained('pokemon')
+                ->onDelete('cascade');
+            
+            $table->string('pokemon_name')->nullable();
+            $table->string('pokemon_type')->nullable();
 
             $table->timestamps();
 

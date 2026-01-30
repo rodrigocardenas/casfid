@@ -12,11 +12,11 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 |
 | Este archivo contiene todas las rutas de la API v1 del BFF.
-| Está protegido bajo el middleware 'api' y tiene el prefijo 'api/v1'
+| Está protegido bajo el middleware 'api' y tiene el prefijo 'v1'
 |
 */
 
-Route::prefix('api/v1')->group(function () {
+Route::prefix('v1')->group(function () {
 
     /*
     |--------------------------------------------------------------------------

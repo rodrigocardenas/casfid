@@ -20,13 +20,13 @@ class LoginTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'password123',
         ]);
 
         $response->assertStatus(200)
-            ->assertJsonStructure(['token', 'user'])
+            ->assertJsonStructure(['success', 'message', 'data' => ['id', 'name', 'email'], 'token'])
             ->assertJsonFragment(['email' => 'test@example.com']);
     }
 
@@ -40,13 +40,13 @@ class LoginTest extends TestCase
             'password' => bcrypt('password123'),
         ]);
 
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
             'password' => 'wrongpassword',
         ]);
 
         $response->assertStatus(401)
-            ->assertJsonFragment(['message' => 'Invalid credentials']);
+            ->assertJsonFragment(['message' => 'Credenciales inválidas']);
     }
 
     /**
@@ -54,7 +54,7 @@ class LoginTest extends TestCase
      */
     public function test_login_requires_email(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'password' => 'password123',
         ]);
 
@@ -67,7 +67,7 @@ class LoginTest extends TestCase
      */
     public function test_login_requires_password(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'test@example.com',
         ]);
 
@@ -80,7 +80,7 @@ class LoginTest extends TestCase
      */
     public function test_login_fails_with_non_existent_user(): void
     {
-        $response = $this->postJson('/api/login', [
+        $response = $this->postJson('/api/v1/auth/login', [
             'email' => 'nonexistent@example.com',
             'password' => 'password123',
         ]);
