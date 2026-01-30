@@ -32,6 +32,12 @@ export const Navbar = () => {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-4">
+            <Link
+              href="/pokemon"
+              className="text-gray-700 hover:text-blue-600 transition-colors font-medium"
+            >
+              Pokédex
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link
@@ -88,6 +94,12 @@ export const Navbar = () => {
         {/* Mobile Menu */}
         {isMenuOpen && (
           <div className="md:hidden pb-4 space-y-2">
+            <Link
+              href="/pokemon"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 font-medium"
+            >
+              Pokédex
+            </Link>
             {isAuthenticated ? (
               <>
                 <Link
