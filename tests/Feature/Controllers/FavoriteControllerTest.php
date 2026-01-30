@@ -4,6 +4,7 @@ namespace Tests\Feature\Controllers;
 
 use App\Models\Favorite;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
 use Tests\TestCase;
 
@@ -17,6 +18,8 @@ use Tests\TestCase;
  */
 class FavoriteControllerTest extends TestCase
 {
+    use RefreshDatabase;
+
     private User $user;
     private string $token;
 
@@ -24,14 +27,56 @@ class FavoriteControllerTest extends TestCase
     {
         parent::setUp();
 
+        // Limpiar el caché antes de cada test
+        \Illuminate\Support\Facades\Cache::flush();
+
         // Crear usuario y token
         $this->user = User::factory()->create([
             'email' => 'test@example.com',
             'password' => bcrypt('Password123!'),
         ]);
 
-        // Generar token JWT
-        $this->token = auth('api')->fromUser($this->user);
+        // Generar token en formato userid.random.timestamp
+        // basado en el método generateToken del middleware AuthToken
+        $this->token = $this->user->id . '.' . \Illuminate\Support\Str::random(40) . '.' . now()->timestamp;
+    }
+
+    protected function tearDown(): void
+    {
+        // Limpiar el caché después de cada test
+        \Illuminate\Support\Facades\Cache::flush();
+        parent::tearDown();
+    }
+
+    /**
+     * Helper para generar mock de PokeAPI completo
+     */
+    private function mockPokemonFromPokeAPI(int $id, string $name = null, array $types = null): array
+    {
+        $name = $name ?? ['bulbasaur', 'charmander', 'squirtle', 'pikachu'][$id - 1] ?? 'pokemon' . $id;
+        $types = $types ?? ($id === 1 ? [['type' => ['name' => 'grass']], ['type' => ['name' => 'poison']]] : [['type' => ['name' => 'normal']]]);
+
+        return [
+            'id' => $id,
+            'name' => $name,
+            'types' => $types,
+            'sprites' => [
+                'front_default' => "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/{$id}.png",
+                'other' => [
+                    'official-artwork' => [
+                        'front_default' => "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/{$id}.png"
+                    ]
+                ]
+            ],
+            'stats' => [
+                ['stat' => ['name' => 'hp'], 'base_stat' => 45],
+                ['stat' => ['name' => 'attack'], 'base_stat' => 49],
+                ['stat' => ['name' => 'defense'], 'base_stat' => 49],
+                ['stat' => ['name' => 'sp-atk'], 'base_stat' => 65],
+                ['stat' => ['name' => 'sp-def'], 'base_stat' => 65],
+                ['stat' => ['name' => 'speed'], 'base_stat' => 45],
+            ],
+        ];
     }
 
     /**
@@ -39,17 +84,11 @@ class FavoriteControllerTest extends TestCase
      */
     public function test_post_favorites_success(): void
     {
-        // Arrange
-        Http::fake([
-            'pokeapi.co/api/v2/pokemon/1' => Http::response([
-                'id' => 1,
-                'name' => 'bulbasaur',
-                'types' => [
-                    ['type' => ['name' => 'grass']],
-                    ['type' => ['name' => 'poison']],
-                ],
-            ]),
-        ]);
+        // Arrange - Pre-crear Pokémon para evitar PokeAPI
+        \App\Models\Pokemon::updateOrCreate(
+            ['pokedex_id' => 1],
+            ['name' => 'Bulbasaur', 'type' => 'grass,poison']
+        );
 
         // Act
         $response = $this->postJson('/api/v1/favorites', [
@@ -102,28 +141,22 @@ class FavoriteControllerTest extends TestCase
      */
     public function test_post_favorites_conflict(): void
     {
-        // Arrange
+        // Arrange - Pre-crear Pokémon
+        $pokemon = \App\Models\Pokemon::updateOrCreate(
+            ['pokedex_id' => 2],
+            ['name' => 'Ivysaur', 'type' => 'grass,poison']
+        );
+
         Favorite::create([
             'user_id' => $this->user->id,
-            'pokemon_id' => 1,
-            'pokemon_name' => 'Bulbasaur',
-            'pokemon_type' => 'grass,poison',
+            'pokemon_id' => $pokemon->id,
+            'pokemon_name' => $pokemon->name,
+            'pokemon_type' => $pokemon->type,
         ]);
 
-        Http::fake([
-            'pokeapi.co/api/v2/pokemon/1' => Http::response([
-                'id' => 1,
-                'name' => 'bulbasaur',
-                'types' => [
-                    ['type' => ['name' => 'grass']],
-                    ['type' => ['name' => 'poison']],
-                ],
-            ]),
-        ]);
-
-        // Act
+        // Act - No necesita mock HTTP porque validatePokemonExists busca en BD primero
         $response = $this->postJson('/api/v1/favorites', [
-            'pokemon_id' => 1,
+            'pokemon_id' => 2,
         ], [
             'Authorization' => "Bearer {$this->token}",
         ]);
@@ -141,18 +174,19 @@ class FavoriteControllerTest extends TestCase
      */
     public function test_post_favorites_invalid_id(): void
     {
-        // Act
+        // Arrange - Mock PokeAPI para devolver error en ID inválido
+        // Primero validamos que el servicio rechace el ID directamente (< 1 o > 150)
+        // Como 999 es > 150, debe rechazarse sin llamar a PokeAPI
+
+        // Act - Laravel valida max:150 y devuelve 422
         $response = $this->postJson('/api/v1/favorites', [
             'pokemon_id' => 999,
         ], [
             'Authorization' => "Bearer {$this->token}",
         ]);
 
-        // Assert
-        $response->assertStatus(400);
-        $response->assertJson([
-            'success' => false,
-        ]);
+        // Assert - Esperamos 422 de validación de Laravel
+        $response->assertStatus(422);
     }
 
     /**
@@ -175,12 +209,19 @@ class FavoriteControllerTest extends TestCase
     public function test_delete_favorite_success(): void
     {
         // Arrange
-        $favorite = Favorite::factory()->create([
+        $pokemon = \App\Models\Pokemon::updateOrCreate(
+            ['pokedex_id' => 100],
+            ['name' => 'Voltorb', 'type' => 'electric']
+        );
+        $favorite = Favorite::create([
             'user_id' => $this->user->id,
+            'pokemon_id' => $pokemon->id,
+            'pokemon_name' => $pokemon->name,
+            'pokemon_type' => $pokemon->type,
         ]);
 
         // Act
-        $response = $this->deleteJson("/api/v1/favorites/{$favorite->pokemon_id}", [], [
+        $response = $this->deleteJson("/api/v1/favorites/{$pokemon->pokedex_id}", [], [
             'Authorization' => "Bearer {$this->token}",
         ]);
 
@@ -201,8 +242,14 @@ class FavoriteControllerTest extends TestCase
      */
     public function test_delete_favorite_not_found(): void
     {
-        // Act
-        $response = $this->deleteJson("/api/v1/favorites/999", [], [
+        // Arrange - Pre-crear el Pokemon pero sin favorito
+        \App\Models\Pokemon::updateOrCreate(
+            ['pokedex_id' => 50],
+            ['name' => 'Diglett', 'type' => 'ground']
+        );
+
+        // Act - Intentar eliminar un favorito que no existe (pokémon 50 existe pero sin favorito)
+        $response = $this->deleteJson("/api/v1/favorites/50", [], [
             'Authorization' => "Bearer {$this->token}",
         ]);
 
@@ -232,9 +279,19 @@ class FavoriteControllerTest extends TestCase
     public function test_get_favorites_success(): void
     {
         // Arrange
-        $favorites = Favorite::factory(3)->create([
-            'user_id' => $this->user->id,
-        ]);
+        for ($i = 101; $i <= 103; $i++) {
+            $pokemon = \App\Models\Pokemon::updateOrCreate(
+                ['pokedex_id' => $i],
+                ['name' => 'Pokemon' . $i, 'type' => 'normal']
+            );
+            Favorite::create([
+                'user_id' => $this->user->id,
+                'pokemon_id' => $pokemon->id,
+                'pokemon_name' => $pokemon->name,
+                'pokemon_type' => $pokemon->type,
+            ]);
+        }
+        $favorites = Favorite::where('user_id', $this->user->id)->get();
 
         // Act
         $response = $this->getJson('/api/v1/favorites', [
@@ -304,7 +361,18 @@ class FavoriteControllerTest extends TestCase
     public function test_get_favorites_pagination(): void
     {
         // Arrange
-        Favorite::factory(25)->create(['user_id' => $this->user->id]);
+        for ($i = 1; $i <= 25; $i++) {
+            $pokemon = \App\Models\Pokemon::updateOrCreate(
+                ['pokedex_id' => $i],
+                ['name' => 'Pokemon' . $i, 'type' => 'normal']
+            );
+            Favorite::create([
+                'user_id' => $this->user->id,
+                'pokemon_id' => $pokemon->id,
+                'pokemon_name' => $pokemon->name,
+                'pokemon_type' => $pokemon->type,
+            ]);
+        }
 
         // Act - Primera página
         $response1 = $this->getJson('/api/v1/favorites?page=1&per_page=10', [
@@ -342,7 +410,18 @@ class FavoriteControllerTest extends TestCase
     public function test_get_favorites_invalid_page(): void
     {
         // Arrange
-        Favorite::factory(5)->create(['user_id' => $this->user->id]);
+        for ($i = 26; $i <= 30; $i++) {
+            $pokemon = \App\Models\Pokemon::updateOrCreate(
+                ['pokedex_id' => $i],
+                ['name' => 'Pokemon' . $i, 'type' => 'normal']
+            );
+            Favorite::create([
+                'user_id' => $this->user->id,
+                'pokemon_id' => $pokemon->id,
+                'pokemon_name' => $pokemon->name,
+                'pokemon_type' => $pokemon->type,
+            ]);
+        }
 
         // Act
         $response = $this->getJson('/api/v1/favorites?page=999', [
@@ -360,10 +439,33 @@ class FavoriteControllerTest extends TestCase
     {
         // Arrange
         $user2 = User::factory()->create();
-        $favorite1 = Favorite::factory()->create(['user_id' => $this->user->id]);
-        Favorite::factory()->create(['user_id' => $user2->id]);
+        
+        // Crear favorito para user1
+        $pokemon1 = \App\Models\Pokemon::updateOrCreate(
+            ['pokedex_id' => 31],
+            ['name' => 'Pokemon31', 'type' => 'normal']
+        );
+        $favorite1 = Favorite::create([
+            'user_id' => $this->user->id,
+            'pokemon_id' => $pokemon1->id,
+            'pokemon_name' => $pokemon1->name,
+            'pokemon_type' => $pokemon1->type,
+        ]);
+        
+        // Crear favorito para user2
+        $pokemon2 = \App\Models\Pokemon::updateOrCreate(
+            ['pokedex_id' => 32],
+            ['name' => 'Pokemon32', 'type' => 'normal']
+        );
+        Favorite::create([
+            'user_id' => $user2->id,
+            'pokemon_id' => $pokemon2->id,
+            'pokemon_name' => $pokemon2->name,
+            'pokemon_type' => $pokemon2->type,
+        ]);
 
-        $token2 = auth('api')->fromUser($user2);
+        // Generar token para user2 en mismo formato que setUp()
+        $token2 = $user2->id . '.' . \Illuminate\Support\Str::random(40) . '.' . now()->timestamp;
 
         // Act
         $response = $this->getJson('/api/v1/favorites', [
@@ -394,24 +496,34 @@ class FavoriteControllerTest extends TestCase
      */
     public function test_favorites_complete_flow(): void
     {
-        // Mock PokeAPI
-        Http::fake([
-            'pokeapi.co/api/v2/pokemon/*' => Http::response([
-                'id' => 1,
-                'name' => 'bulbasaur',
-                'types' => [
-                    ['type' => ['name' => 'grass']],
-                    ['type' => ['name' => 'poison']],
-                ],
-            ]),
-        ]);
+        // Pre-crear un Pokémon en BD (para evitar PokeAPI call)
+        $pokemon = \App\Models\Pokemon::updateOrCreate(
+            ['pokedex_id' => 150],
+            ['name' => 'Mewtwo', 'type' => 'psychic']
+        );
+        
+        // Verificar que el pokémon se creó correctamente
+        $this->assertNotNull($pokemon);
+        $this->assertEquals(150, $pokemon->pokedex_id);
+        
+        // Verificar que se puede encontrar en BD
+        $foundPokemon = \App\Models\Pokemon::where('pokedex_id', 150)->first();
+        $this->assertNotNull($foundPokemon);
 
         // 1. Agregar favorito
         $addResponse = $this->postJson('/api/v1/favorites', [
-            'pokemon_id' => 1,
+            'pokemon_id' => 150,
         ], [
             'Authorization' => "Bearer {$this->token}",
         ]);
+        
+        if ($addResponse->status() !== 201) {
+            dd([
+                'status' => $addResponse->status(),
+                'response' => $addResponse->json(),
+            ]);
+        }
+        
         $this->assertEquals(201, $addResponse->status());
 
         // 2. Verificar que está en la lista
@@ -422,7 +534,7 @@ class FavoriteControllerTest extends TestCase
         $this->assertEquals(1, $listResponse->json('pagination.total'));
 
         // 3. Eliminar favorito
-        $deleteResponse = $this->deleteJson('/api/v1/favorites/1', [], [
+        $deleteResponse = $this->deleteJson('/api/v1/favorites/150', [], [
             'Authorization' => "Bearer {$this->token}",
         ]);
         $this->assertEquals(200, $deleteResponse->status());
