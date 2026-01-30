@@ -71,7 +71,7 @@ export const LoginForm = () => {
     setIsLoading(true);
     try {
       const response = await login(formData);
-      setUser(response.user);
+      setUser(response.data);
       success('¡Bienvenido! Sesión iniciada correctamente');
       router.push('/');
     } catch (err: any) {

@@ -87,7 +87,7 @@ export const RegisterForm = () => {
     setIsLoading(true);
     try {
       const response = await register(formData);
-      setUser(response.user);
+      setUser(response.data);
       success('¡Registro exitoso! Bienvenido');
       router.push('/');
     } catch (err: any) {
