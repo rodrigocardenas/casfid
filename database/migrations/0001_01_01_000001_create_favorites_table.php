@@ -16,11 +16,11 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');
-            
+
             $table->unsignedInteger('pokemon_id');
             $table->string('pokemon_name');
             $table->string('pokemon_type');
-            
+
             $table->timestamps();
 
             // Índices para optimización y constraint de unicidad

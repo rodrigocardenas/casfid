@@ -6,16 +6,16 @@ use Illuminate\Foundation\Http\FormRequest;
 
 /**
  * PokemonIndexRequest
- * 
+ *
  * Validación de parámetros para GET /api/v1/pokemon
- * 
+ *
  * @package App\Http\Requests
  */
 class PokemonIndexRequest extends FormRequest
 {
     /**
      * Determinar si el usuario está autorizado a hacer esta petición
-     * 
+     *
      * @return bool
      */
     public function authorize(): bool
@@ -25,7 +25,7 @@ class PokemonIndexRequest extends FormRequest
 
     /**
      * Obtener las reglas de validación que se aplican a la solicitud
-     * 
+     *
      * @return array
      */
     public function rules(): array
@@ -40,7 +40,7 @@ class PokemonIndexRequest extends FormRequest
 
     /**
      * Mensajes de validación personalizados
-     * 
+     *
      * @return array
      */
     public function messages(): array
@@ -60,7 +60,7 @@ class PokemonIndexRequest extends FormRequest
 
     /**
      * Nombres de atributos personalizados para mensajes
-     * 
+     *
      * @return array
      */
     public function attributes(): array

@@ -116,7 +116,7 @@
 
 1️⃣ REGISTRAR USUARIO
    POST /api/v1/auth/register
-   
+
    Request:
    {
      "name": "Juan Pérez",
@@ -124,7 +124,7 @@
      "password": "SecurePassword123!",
      "password_confirmation": "SecurePassword123!"
    }
-   
+
    Response (201):
    {
      "success": true,
@@ -140,13 +140,13 @@
 
 2️⃣ INICIAR SESIÓN
    POST /api/v1/auth/login
-   
+
    Request:
    {
      "email": "juan@example.com",
      "password": "SecurePassword123!"
    }
-   
+
    Response (200):
    {
      "success": true,
@@ -163,7 +163,7 @@
 3️⃣ USUARIO AUTENTICADO
    GET /api/v1/auth/me ⚡
    Header: Authorization: Bearer {token}
-   
+
    Response (200):
    {
      "success": true,
@@ -178,7 +178,7 @@
 4️⃣ RENOVAR TOKEN
    POST /api/v1/auth/refresh ⚡
    Header: Authorization: Bearer {token}
-   
+
    Response (200):
    {
      "success": true,
@@ -191,7 +191,7 @@
 5️⃣ CERRAR SESIÓN
    POST /api/v1/auth/logout ⚡
    Header: Authorization: Bearer {token}
-   
+
    Response (200):
    {
      "success": true,
@@ -374,7 +374,7 @@ Seguridad: Enterprise-level
 
                     Pokémon BFF - Backend Autenticación
                   Fase 3.1 - ✅ COMPLETADA - 2026-01-30
-                      
+
                     Siguiente: Fase 3.2 - Pokemon API
 
 ═════════════════════════════════════════════════════════════════════════════

@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS logs.audit_log (
     ip_address INET,
     user_agent TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
+
     INDEX idx_entity (entity_type, entity_id),
     INDEX idx_action (action),
     INDEX idx_created_at (created_at DESC)

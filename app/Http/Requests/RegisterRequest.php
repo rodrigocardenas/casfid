@@ -59,12 +59,12 @@ class RegisterRequest extends FormRequest
             'name.min' => 'El nombre debe tener mínimo 2 caracteres.',
             'name.max' => 'El nombre no puede exceder 255 caracteres.',
             'name.regex' => 'El nombre contiene caracteres inválidos.',
-            
+
             'email.required' => 'El email es requerido.',
             'email.email' => 'El email no es válido.',
             'email.unique' => 'Este email ya está registrado.',
             'email.max' => 'El email no puede exceder 255 caracteres.',
-            
+
             'password.required' => 'La contraseña es requerida.',
             'password.string' => 'La contraseña debe ser texto.',
             'password.min' => 'La contraseña debe tener mínimo 8 caracteres.',

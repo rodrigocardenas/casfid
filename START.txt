@@ -234,7 +234,7 @@ FASE 4: Deployment
 👉 PRÓXIMO PASO: Lee QUICKSTART.md o INDEX.md
 
    O directamente:
-   
+
    $ cp .env.example .env
    $ docker-compose up -d --build
    $ docker-compose ps

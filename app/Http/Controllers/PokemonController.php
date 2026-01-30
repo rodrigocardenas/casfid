@@ -10,18 +10,18 @@ use Exception;
 
 /**
  * PokemonController
- * 
+ *
  * Endpoints para el dominio de Pokémon:
  * - GET /api/v1/pokemon (listado paginado con filtros)
  * - GET /api/v1/pokemon/{id} (detalle de un pokémon)
- * 
+ *
  * @package App\Http\Controllers
  */
 class PokemonController extends Controller
 {
     /**
      * Inyectar PokemonService
-     * 
+     *
      * @param PokemonService $pokemonService
      */
     public function __construct(
@@ -31,13 +31,13 @@ class PokemonController extends Controller
 
     /**
      * Obtiene lista paginada de pokémon de generación 1
-     * 
+     *
      * Query Parameters:
      * - page (int): Número de página (default 1)
      * - per_page (int): Items por página (default 20, max 50)
      * - type (string): Filtrar por tipo (water, fire, grass, etc)
      * - search (string): Buscar por nombre
-     * 
+     *
      * Response 200:
      * {
      *   "success": true,
@@ -60,7 +60,7 @@ class PokemonController extends Controller
      *   },
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * Response 503 (PokeAPI unavailable):
      * {
      *   "success": false,
@@ -68,7 +68,7 @@ class PokemonController extends Controller
      *   "message": "Failed to fetch pokemon from PokeAPI",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * @param Request $request
      * @return JsonResponse
      */
@@ -134,10 +134,10 @@ class PokemonController extends Controller
 
     /**
      * Obtiene detalles completos de un pokémon
-     * 
+     *
      * URL Parameters:
      * - id (int): ID del pokémon (1-150)
-     * 
+     *
      * Response 200:
      * {
      *   "success": true,
@@ -161,14 +161,14 @@ class PokemonController extends Controller
      *   },
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * Response 404 (Pokemon not found):
      * {
      *   "success": false,
      *   "error": "Pokemon not found",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * Response 503 (PokeAPI unavailable):
      * {
      *   "success": false,
@@ -176,7 +176,7 @@ class PokemonController extends Controller
      *   "message": "Failed to fetch pokemon from PokeAPI",
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * @param int $id
      * @return JsonResponse
      */
@@ -229,7 +229,7 @@ class PokemonController extends Controller
 
     /**
      * Obtiene filtros disponibles (tipos de pokémon)
-     * 
+     *
      * Response 200:
      * {
      *   "success": true,
@@ -243,7 +243,7 @@ class PokemonController extends Controller
      *   },
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
-     * 
+     *
      * @return JsonResponse
      */
     public function filters(): JsonResponse

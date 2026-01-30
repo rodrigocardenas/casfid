@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PokemonController;
+use App\Http\Controllers\FavoriteController;
 use App\Http\Middleware\AuthRateLimiter;
 use Illuminate\Support\Facades\Route;
 
@@ -16,7 +17,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::prefix('api/v1')->group(function () {
-    
+
     /*
     |--------------------------------------------------------------------------
     | Rutas de Autenticación (Public con Rate Limiting)
@@ -32,7 +33,7 @@ Route::prefix('api/v1')->group(function () {
     | Rutas Públicas (Sin autenticación)
     |--------------------------------------------------------------------------
     */
-    
+
     // Pokemon - Listado (público para todos)
     Route::get('/pokemon', [PokemonController::class, 'index'])->name('pokemon.index');
     Route::get('/pokemon/{id}', [PokemonController::class, 'show'])->name('pokemon.show');
@@ -44,7 +45,7 @@ Route::prefix('api/v1')->group(function () {
     |--------------------------------------------------------------------------
     */
     Route::middleware('auth:api')->group(function () {
-        
+
         // Autenticación
         Route::prefix('auth')->group(function () {
             Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
@@ -52,9 +53,10 @@ Route::prefix('api/v1')->group(function () {
             Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
         });
 
-        // Favoritos (Por implementar en Prompt 3.3)
-        // Route::post('/favorites', [FavoriteController::class, 'store'])->name('favorites.store');
-        // Route::delete('/favorites/{pokemon_id}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+        // Favoritos
+        Route::post('/favorites', [FavoriteController::class, 'store'])->name('favorites.store');
+        Route::delete('/favorites/{pokemon_id}', [FavoriteController::class, 'destroy'])->name('favorites.destroy');
+        Route::get('/favorites', [FavoriteController::class, 'index'])->name('favorites.index');
     });
 });
 

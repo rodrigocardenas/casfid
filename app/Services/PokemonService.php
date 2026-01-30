@@ -9,13 +9,13 @@ use Exception;
 
 /**
  * PokemonService
- * 
+ *
  * Servicio para consumir PokeAPI v2 y gestionar caché de pokémon
  * - Obtiene primeros 150 pokémon (Generación 1)
  * - Filtra por nombre, tipo, favoritos
  * - Cachea respuestas en Redis por 24 horas
  * - Manejo de errores graceful si PokeAPI falla
- * 
+ *
  * @package App\Services
  */
 class PokemonService
@@ -42,7 +42,7 @@ class PokemonService
 
     /**
      * Obtiene lista paginada de pokémon de generación 1
-     * 
+     *
      * @param int $page
      * @param int $perPage
      * @param string|null $type Filtrar por tipo (water, fire, grass, etc)
@@ -113,7 +113,7 @@ class PokemonService
 
     /**
      * Obtiene detalles completos de un pokémon por ID
-     * 
+     *
      * @param int $pokemonId ID del pokémon (1-150)
      * @return array
      * @throws Exception
@@ -153,7 +153,7 @@ class PokemonService
 
     /**
      * Obtiene todos los pokémon de generación 1 con caché
-     * 
+     *
      * @return array
      * @throws Exception
      */
@@ -179,7 +179,7 @@ class PokemonService
 
     /**
      * Obtiene lista de todos los pokémon de PokeAPI
-     * 
+     *
      * @return array
      * @throws Exception
      */
@@ -234,7 +234,7 @@ class PokemonService
 
     /**
      * Obtiene detalles de un pokémon específico de PokeAPI
-     * 
+     *
      * @param int $pokemonId
      * @return array
      * @throws Exception
@@ -257,7 +257,7 @@ class PokemonService
             return [
                 'id' => $data['id'],
                 'name' => ucfirst($data['name']),
-                'image' => $data['sprites']['other']['official-artwork']['front_default'] 
+                'image' => $data['sprites']['other']['official-artwork']['front_default']
                     ?? $data['sprites']['front_default']
                     ?? null,
                 'types' => $types,
@@ -284,7 +284,7 @@ class PokemonService
 
     /**
      * Carga tipos para múltiples pokémon
-     * 
+     *
      * @param array $pokemon
      * @return array
      */
@@ -312,7 +312,7 @@ class PokemonService
 
     /**
      * Normaliza datos de un pokémon
-     * 
+     *
      * @param string $name
      * @param int $id
      * @param array|null $types
@@ -330,7 +330,7 @@ class PokemonService
 
     /**
      * Obtiene URL de imagen oficial de pokémon
-     * 
+     *
      * @param int $id
      * @return string
      */
@@ -341,7 +341,7 @@ class PokemonService
 
     /**
      * Extrae ID desde URL de PokeAPI
-     * 
+     *
      * @param string $url
      * @return int
      */
@@ -353,7 +353,7 @@ class PokemonService
 
     /**
      * Normaliza stats de pokémon
-     * 
+     *
      * @param array $stats
      * @return array
      */

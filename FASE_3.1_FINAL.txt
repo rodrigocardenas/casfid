@@ -259,7 +259,7 @@ TABLA: users
   deleted_at        TIMESTAMP NULL              ← Soft Deletes
   created_at        TIMESTAMP
   updated_at        TIMESTAMP
-  
+
   ÍNDICES:
     - id (PRIMARY)
     - email (UNIQUE)
@@ -273,7 +273,7 @@ TABLA: favorites
   pokemon_type      VARCHAR(100) NOT NULL
   created_at        TIMESTAMP
   updated_at        TIMESTAMP
-  
+
   ÍNDICES:
     - id (PRIMARY)
     - user_id

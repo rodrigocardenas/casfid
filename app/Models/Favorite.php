@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Modelo Favorite
- * 
+ *
  * @property int $id
  * @property int $user_id
  * @property int $pokemon_id
