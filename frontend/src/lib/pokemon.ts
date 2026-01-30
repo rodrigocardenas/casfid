@@ -23,6 +23,7 @@ export interface Pokemon {
 }
 
 export interface PokemonListResponse {
+  success: boolean;
   data: Pokemon[];
   pagination?: {
     current_page: number;
@@ -78,8 +79,11 @@ export const getPokemonList = async (
     const queryString = params.toString();
     const url = queryString ? `/pokemon?${queryString}` : '/pokemon';
 
-    const response = await apiClient.get<PokemonListResponse>(url);
-    return response.data;
+    console.log('Fetching Pokemon list with URL:', url);
+    const pokemonListResponse = await apiClient.get<PokemonListResponse>(url);
+    console.log('Pokemon list response:', pokemonListResponse);
+    // apiClient.get() already returns response.data, so pokemonListResponse is PokemonListResponse
+    return pokemonListResponse;
   } catch (error) {
     console.error('Error fetching Pokemon list:', error);
     throw error;
@@ -112,12 +116,28 @@ export const filterByType = async (
  * Get all Pokemon types available
  * @returns List of types
  */
-export const getPokemonTypes = async (): Promise<PokemonType[]> => {
+export const getPokemonTypes = async (): Promise<string[]> => {
   try {
-    const response = await apiClient.get<{ data: PokemonType[] }>(
-      '/pokemon/types'
-    );
-    return response.data.data || [];
+    console.log('Fetching Pokemon types...');
+    const response = await apiClient.get<any>('/pokemon/types');
+    console.log('Pokemon types response:', response.data);
+    
+    // Handle different response structures
+    let types: string[] = [];
+    
+    if (Array.isArray(response.data)) {
+      // Direct array response
+      types = response.data;
+    } else if (response.data?.data && Array.isArray(response.data.data)) {
+      // { success, data: [...] } structure
+      types = response.data.data;
+    } else if (response.data?.types && Array.isArray(response.data.types)) {
+      // Alternative structure
+      types = response.data.types;
+    }
+    
+    console.log('Parsed types:', types);
+    return types;
   } catch (error) {
     console.error('Error fetching Pokemon types:', error);
     return [];
@@ -131,8 +151,8 @@ export const getPokemonTypes = async (): Promise<PokemonType[]> => {
  */
 export const getPokemonById = async (id: number): Promise<Pokemon> => {
   try {
-    const response = await apiClient.get<{ data: Pokemon }>(`/pokemon/${id}`);
-    return response.data.data;
+    const response = await apiClient.get<{ success: boolean; data: Pokemon }>(`/pokemon/${id}`);
+    return response.data;
   } catch (error) {
     console.error(`Error fetching Pokemon ${id}:`, error);
     throw error;
@@ -251,7 +271,7 @@ export const getTypeColor = (type: string): string => {
     fairy: '#EE99AC',
   };
 
-  return typeColors[type.toLowerCase()] || '#666666';
+  return (type && typeColors[type.toLowerCase()]) || '#666666';
 };
 
 /**
