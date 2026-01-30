@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { getPokemonTypes, PokemonType } from '@/lib/pokemon';
+import { getPokemonTypes } from '@/lib/pokemon';
 
 interface PokemonFiltersProps {
   onSearchChange: (query: string) => void;
@@ -18,7 +18,7 @@ export const PokemonFilters: React.FC<PokemonFiltersProps> = ({
   isLoggedIn = false,
   loading = false,
 }) => {
-  const [types, setTypes] = useState<PokemonType[]>([]);
+  const [types, setTypes] = useState<string[]>([]);
   const [loadingTypes, setLoadingTypes] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState('');
@@ -31,9 +31,12 @@ export const PokemonFilters: React.FC<PokemonFiltersProps> = ({
       try {
         setLoadingTypes(true);
         const typesData = await getPokemonTypes();
+        console.log('Types fetched:', typesData);
         setTypes(typesData);
       } catch (error) {
         console.error('Error fetching types:', error);
+        // Set default types in case of error
+        setTypes(['normal', 'fire', 'water', 'grass', 'electric', 'ice', 'fighting', 'poison', 'ground', 'flying', 'psychic', 'bug', 'rock', 'ghost', 'dragon', 'dark', 'steel', 'fairy']);
       } finally {
         setLoadingTypes(false);
       }
@@ -45,7 +48,10 @@ export const PokemonFilters: React.FC<PokemonFiltersProps> = ({
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
-    onSearchChange(query);
+    // Only search if query has 3+ characters or is empty
+    if (query.length === 0 || query.length >= 3) {
+      onSearchChange(query);
+    }
   };
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -131,17 +137,22 @@ export const PokemonFilters: React.FC<PokemonFiltersProps> = ({
               type="text"
               value={searchQuery}
               onChange={handleSearchChange}
-              placeholder="Bulbasaur, Pikachu..."
+              placeholder="Bulbasaur, Pikachu... (mín. 3 caracteres)"
               disabled={loading}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
             />
+            {searchQuery.length > 0 && searchQuery.length < 3 && (
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                Escribe al menos 3 caracteres para buscar
+              </p>
+            )}
           </div>
         </div>
 
         {/* Type Filter */}
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Tipo
+            Tipo ({types.length} disponibles)
           </label>
           <select
             value={selectedType}
@@ -149,13 +160,22 @@ export const PokemonFilters: React.FC<PokemonFiltersProps> = ({
             disabled={loading || loadingTypes}
             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <option value="">Todos los tipos</option>
-            {types.map((type) => (
-              <option key={type.id} value={type.name}>
-                {type.name.charAt(0).toUpperCase() + type.name.slice(1)}
-              </option>
-            ))}
+            <option value="">-- Todos los tipos ({types.length}) --</option>
+            {types && types.length > 0 ? (
+              types.map((type) => (
+                <option key={type} value={type}>
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </option>
+              ))
+            ) : (
+              <option disabled>Cargando tipos...</option>
+            )}
           </select>
+          {types.length === 0 && !loadingTypes && (
+            <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+              No se pudo cargar los tipos
+            </p>
+          )}
         </div>
 
         {/* Favorites Toggle */}

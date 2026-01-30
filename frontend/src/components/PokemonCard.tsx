@@ -142,13 +142,13 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
           {pokemon.types && pokemon.types.length > 0 ? (
             pokemon.types.map((type) => (
               <span
-                key={type.id}
+                key={typeof type === 'string' ? type : type.id}
                 className="px-3 py-1 rounded-full text-xs font-semibold text-white"
                 style={{
-                  backgroundColor: getTypeColor(type.name),
+                  backgroundColor: getTypeColor(typeof type === 'string' ? type : type.name),
                 }}
               >
-                {formatTypeName(type.name)}
+                {formatTypeName(typeof type === 'string' ? type : type.name)}
               </span>
             ))
           ) : (
