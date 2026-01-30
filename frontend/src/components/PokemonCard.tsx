@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useTransition } from 'react';
 import Image from 'next/image';
 import { Pokemon, toggleFavorite, getTypeColor, formatPokemonName, formatTypeName } from '@/lib/pokemon';
 import { useToast } from '@/hooks/useToast';
@@ -17,7 +17,7 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
   isLoggedIn = false,
 }) => {
   const [isFavorite, setIsFavorite] = useState(pokemon.is_favorite || false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const { showToast } = useToast();
 
   const handleFavoriteClick = async () => {
@@ -26,32 +26,40 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
       return;
     }
 
-    try {
-      setIsLoading(true);
-      await toggleFavorite(pokemon.id, isFavorite);
-      const newFavoriteState = !isFavorite;
-      setIsFavorite(newFavoriteState);
+    // Optimistic UI: Update state immediately
+    const newFavoriteState = !isFavorite;
+    setIsFavorite(newFavoriteState);
 
-      if (onFavoriteChange) {
-        onFavoriteChange(pokemon.id, newFavoriteState);
+    // Call API in background
+    startTransition(async () => {
+      try {
+        await toggleFavorite(pokemon.id, isFavorite);
+
+        if (onFavoriteChange) {
+          onFavoriteChange(pokemon.id, newFavoriteState);
+        }
+
+        showToast(
+          newFavoriteState
+            ? `${formatPokemonName(pokemon.name)} agregado a favoritos`
+            : `${formatPokemonName(pokemon.name)} removido de favoritos`,
+          'success'
+        );
+      } catch (error) {
+        console.error('Error updating favorite:', error);
+        // Rollback on error
+        setIsFavorite(!newFavoriteState);
+        showToast('Error al actualizar favoritos', 'error');
       }
-
-      showToast(
-        newFavoriteState
-          ? `${formatPokemonName(pokemon.name)} agregado a favoritos`
-          : `${formatPokemonName(pokemon.name)} removido de favoritos`,
-        'success'
-      );
-    } catch (error) {
-      console.error('Error updating favorite:', error);
-      showToast('Error al actualizar favoritos', 'error');
-    } finally {
-      setIsLoading(false);
-    }
+    });
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-200 dark:border-gray-700">
+    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border-2 ${
+      isFavorite 
+        ? 'border-yellow-400 dark:border-yellow-500 ring-2 ring-yellow-200 dark:ring-yellow-900/50' 
+        : 'border-gray-200 dark:border-gray-700'
+    }`}>
       {/* Image Container */}
       <div className="relative w-full h-48 bg-gradient-to-b from-gray-100 to-gray-50 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center overflow-hidden">
         {pokemon.image ? (
@@ -71,37 +79,61 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
           </div>
         )}
 
-        {/* Favorite Button */}
+        {/* Favorite Star Button */}
         {isLoggedIn && (
           <button
             onClick={handleFavoriteClick}
-            disabled={isLoading}
-            className="absolute top-2 right-2 p-2 bg-white/80 dark:bg-gray-800/80 rounded-full hover:bg-white dark:hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            disabled={isPending}
+            className={`absolute top-2 right-2 p-2 rounded-full transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform ${
+              isPending ? 'scale-110' : 'hover:scale-110'
+            } ${
+              isFavorite
+                ? 'bg-yellow-100 dark:bg-yellow-900/30 shadow-lg'
+                : 'bg-white/80 dark:bg-gray-800/80 hover:bg-yellow-50 dark:hover:bg-gray-700'
+            }`}
             aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
           >
             <svg
-              className={`w-5 h-5 transition-colors ${
-                isFavorite ? 'fill-red-500 text-red-500' : 'text-gray-400 dark:text-gray-500'
+              className={`w-6 h-6 transition-all duration-200 ${
+                isFavorite 
+                  ? 'fill-yellow-400 dark:fill-yellow-500 text-yellow-400 dark:text-yellow-500 drop-shadow-md' 
+                  : 'fill-none text-gray-400 dark:text-gray-500'
               }`}
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
-              fill="currentColor"
+              stroke="currentColor"
+              strokeWidth={isFavorite ? 0 : 2}
             >
-              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.734 20.84a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z"
+              />
             </svg>
           </button>
+        )}
+
+        {/* Favorite Indicator Badge */}
+        {isFavorite && (
+          <div className="absolute top-2 left-2 bg-yellow-100 dark:bg-yellow-900/40 rounded-full p-2 animate-pulse">
+            <span className="text-xs font-bold text-yellow-600 dark:text-yellow-400">⭐</span>
+          </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-4">
+      <div className={`p-4 ${isFavorite ? 'bg-yellow-50 dark:bg-yellow-900/10' : ''}`}>
         {/* Pokemon ID */}
         <div className="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">
           #{String(pokemon.id).padStart(3, '0')}
         </div>
 
         {/* Pokemon Name */}
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 truncate">
+        <h3 className={`text-lg font-bold mb-2 truncate transition-colors ${
+          isFavorite 
+            ? 'text-yellow-700 dark:text-yellow-400' 
+            : 'text-gray-900 dark:text-white'
+        }`}>
           {formatPokemonName(pokemon.name)}
         </h3>
 
@@ -146,17 +178,17 @@ export const PokemonCard: React.FC<PokemonCardProps> = ({
             {pokemon.description}
           </p>
         )}
-      </div>
 
-      {/* Favorite indicator */}
-      {isFavorite && !isLoggedIn && (
-        <div className="px-4 pb-3 text-xs font-semibold text-red-500 flex items-center gap-1">
-          <svg className="w-4 h-4 fill-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-          </svg>
-          Favorito
-        </div>
-      )}
+        {/* Favorite Status Footer */}
+        {isFavorite && !isLoggedIn && (
+          <div className="mt-3 pt-3 border-t border-yellow-200 dark:border-yellow-800 text-xs font-semibold text-yellow-600 dark:text-yellow-400 flex items-center gap-1">
+            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.734 20.84a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+            </svg>
+            Favorito
+          </div>
+        )}
+      </div>
     </div>
   );
 };
