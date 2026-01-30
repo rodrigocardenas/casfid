@@ -21,7 +21,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUserState] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (checkAuth()) {
           const currentUser = getUser();
           if (currentUser) {
-            setUser(currentUser);
+            setUserState(currentUser);
             setIsAuthenticated(true);
           }
         }
@@ -46,14 +46,41 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initializeAuth();
   }, []);
 
+  // Escuchar cambios en localStorage
+  useEffect(() => {
+    const handleStorageChange = () => {
+      try {
+        if (checkAuth()) {
+          const currentUser = getUser();
+          if (currentUser) {
+            setUserState(currentUser);
+            setIsAuthenticated(true);
+          }
+        } else {
+          setUserState(null);
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.error('Error updating auth from storage:', error);
+      }
+    };
+
+    // Escuchar evento de storage (cambios en otros tabs/ventanas)
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
   const logout = useCallback(() => {
     performLogout();
-    setUser(null);
+    setUserState(null);
     setIsAuthenticated(false);
   }, []);
 
   const handleSetUser = useCallback((newUser: User | null) => {
-    setUser(newUser);
+    setUserState(newUser);
     setIsAuthenticated(!!newUser);
   }, []);
 

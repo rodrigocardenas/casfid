@@ -39,6 +39,11 @@ export const useToast = () => {
   const info = useCallback((message: string) => addToast(message, 'info'), [addToast]);
   const warning = useCallback((message: string) => addToast(message, 'warning'), [addToast]);
 
+  // Alias para showToast que por defecto es 'info'
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' | 'warning' = 'info') => {
+    return addToast(message, type);
+  }, [addToast]);
+
   return {
     toasts,
     addToast,
@@ -47,5 +52,6 @@ export const useToast = () => {
     error,
     info,
     warning,
+    showToast,
   };
 };
