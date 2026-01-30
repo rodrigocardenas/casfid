@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { PokemonFilters } from '@/components/PokemonFilters';
 import { PokemonGrid } from '@/components/PokemonGrid';
-import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import {
@@ -21,7 +20,7 @@ export default function PokemonPage() {
 
   // State
   const [pokemon, setPokemon] = useState<Pokemon[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
@@ -55,6 +54,10 @@ export default function PokemonPage() {
         response = await searchWithFilters(filters);
       }
 
+      console.log('Response from searchWithFilters:', response);
+      console.log('response.data:', response.data);
+      console.log('response.pagination:', response.pagination);
+      console.log('Setting pokemon to:', Array.isArray(response.data) ? response.data.length + ' items' : 'NOT AN ARRAY');
       setPokemon(response.data || []);
 
       // Set pagination
