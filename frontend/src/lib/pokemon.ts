@@ -121,10 +121,10 @@ export const getPokemonTypes = async (): Promise<string[]> => {
     console.log('Fetching Pokemon types...');
     const response = await apiClient.get<any>('/pokemon/types');
     console.log('Pokemon types response:', response.data);
-    
+
     // Handle different response structures
     let types: string[] = [];
-    
+
     if (Array.isArray(response.data)) {
       // Direct array response
       types = response.data;
@@ -135,7 +135,7 @@ export const getPokemonTypes = async (): Promise<string[]> => {
       // Alternative structure
       types = response.data.types;
     }
-    
+
     console.log('Parsed types:', types);
     return types;
   } catch (error) {

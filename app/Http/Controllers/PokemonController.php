@@ -178,7 +178,7 @@ class PokemonController extends Controller
         try {
             // Convertir a int si es string
             $id = (int) $id;
-            
+
             // Validar ID
             if ($id < 1 || $id > 150) {
                 return response()->json([

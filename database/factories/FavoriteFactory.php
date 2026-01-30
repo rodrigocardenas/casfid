@@ -19,7 +19,7 @@ class FavoriteFactory extends Factory
         // Generar un pokémon_id basado en el timestamp para mayor "unicidad"
         // pero manteniendo randomness
         $pokemonId = ((int)(microtime(true) * 10000)) % 150 + 1;
-        
+
         // Crear o actualizar el Pokémon
         $pokemon = \App\Models\Pokemon::updateOrCreate(
             ['pokedex_id' => $pokemonId],

@@ -119,14 +119,14 @@ FRONTEND (Vitest)
    cd /c/laragon/www/casfid
    composer require pestphp/pest pestphp/pest-plugin-laravel --dev
    php artisan pest:install
-   
+
    cd frontend
    npm install  # (si no está hecho)
 
 2. EJECUTAR TESTS
    # Backend
    php artisan pest --coverage
-   
+
    # Frontend
    npm run test:coverage
 
@@ -225,7 +225,7 @@ Version: 2.0 (with Testing)
 Date:    January 30, 2026
 
 Backend:        ✅ Complete
-Frontend:       ✅ Complete  
+Frontend:       ✅ Complete
 Testing:        ✅ Complete
 Documentation:  ✅ Complete
 Git History:    ✅ Clean

@@ -41,22 +41,22 @@ class AuthToken
         if (count($parts) >= 1 && is_numeric($parts[0])) {
             $userId = (int)$parts[0];
             Log::debug('AuthToken - Extracted userId:', ['userId' => $userId]);
-            
+
             $user = User::find($userId);
 
             if ($user) {
                 Log::debug('AuthToken - User found:', ['userId' => $user->id, 'email' => $user->email]);
-                
+
                 // Establecer el usuario en el request
                 $request->setUserResolver(function () use ($user) {
                     return $user;
                 });
-                
+
                 // Establecer el usuario en el auth guard web
                 Auth::guard('web')->setUser($user);
-                
+
                 Log::debug('AuthToken - Auth::user() after setUser:', ['user' => Auth::user() ? Auth::user()->id : 'null']);
-                
+
                 return $next($request);
             } else {
                 Log::warning('AuthToken - User not found:', ['userId' => $userId]);

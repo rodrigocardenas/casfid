@@ -17,7 +17,7 @@ class PokemonFactory extends Factory
     public function definition(): array
     {
         $types = ['electric', 'fire', 'water', 'grass', 'poison', 'flying', 'bug', 'rock', 'ground', 'psychic', 'ice', 'dragon', 'dark', 'steel', 'fairy'];
-        
+
         return [
             'pokedex_id' => $this->faker->unique()->numberBetween(1, 151),
             'name' => $this->faker->unique()->word(),

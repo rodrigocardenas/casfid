@@ -134,7 +134,7 @@ class AuthController extends Controller
         try {
             // For testing purposes, just return a new token
             $user = auth('api')->user() ?? auth('web')->user();
-            
+
             if (!$user) {
                 return response()->json([
                     'success' => false,

@@ -349,7 +349,7 @@ class PokemonService
                 'error' => $e->getMessage(),
                 'pokemon_id' => $pokemonId,
             ]);
-            
+
             // Devolver datos mock si PokeAPI no está disponible
             return $this->getMockPokemonData($pokemonId);
         }

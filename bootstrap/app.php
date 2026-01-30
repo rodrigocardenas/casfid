@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             \Illuminate\Http\Middleware\HandleCors::class,
         ]);
-        
+
         $middleware->alias([
             'auth.token' => \App\Http\Middleware\AuthToken::class,
         ]);

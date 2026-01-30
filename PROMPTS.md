@@ -1,6 +1,8 @@
 # 📝 Prompts Principales - Pokémon BFF
 
 > Documento que lista los prompts principales utilizados durante el desarrollo de la aplicación Pokémon BFF (Backend For Frontend)
+> IA utilizada: Claude Haiku 4.5 (con VScode y github copilot), ya que dejé de pagar hace unos meses Cursor, y tenía la suscripción a copilot desde antes.
+
 
 ---
 

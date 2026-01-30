@@ -439,7 +439,7 @@ class FavoriteControllerTest extends TestCase
     {
         // Arrange
         $user2 = User::factory()->create();
-        
+
         // Crear favorito para user1
         $pokemon1 = \App\Models\Pokemon::updateOrCreate(
             ['pokedex_id' => 31],
@@ -451,7 +451,7 @@ class FavoriteControllerTest extends TestCase
             'pokemon_name' => $pokemon1->name,
             'pokemon_type' => $pokemon1->type,
         ]);
-        
+
         // Crear favorito para user2
         $pokemon2 = \App\Models\Pokemon::updateOrCreate(
             ['pokedex_id' => 32],
@@ -501,11 +501,11 @@ class FavoriteControllerTest extends TestCase
             ['pokedex_id' => 150],
             ['name' => 'Mewtwo', 'type' => 'psychic']
         );
-        
+
         // Verificar que el pokémon se creó correctamente
         $this->assertNotNull($pokemon);
         $this->assertEquals(150, $pokemon->pokedex_id);
-        
+
         // Verificar que se puede encontrar en BD
         $foundPokemon = \App\Models\Pokemon::where('pokedex_id', 150)->first();
         $this->assertNotNull($foundPokemon);
@@ -516,14 +516,14 @@ class FavoriteControllerTest extends TestCase
         ], [
             'Authorization' => "Bearer {$this->token}",
         ]);
-        
+
         if ($addResponse->status() !== 201) {
             dd([
                 'status' => $addResponse->status(),
                 'response' => $addResponse->json(),
             ]);
         }
-        
+
         $this->assertEquals(201, $addResponse->status());
 
         // 2. Verificar que está en la lista

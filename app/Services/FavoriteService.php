@@ -42,7 +42,7 @@ class FavoriteService
 
     /**
      * Agrega un pokémon a favoritos del usuario
-     * 
+     *
      * Estrategia:
      * 1. Obtiene datos del Pokémon de PokeAPI
      * 2. Inserta/actualiza el Pokémon en BD (si no existe)
@@ -170,7 +170,7 @@ class FavoriteService
 
     /**
      * Obtiene todos los favoritos del usuario con caché
-     * 
+     *
      * Estrategia:
      * 1. Intenta obtener del caché (1 hora)
      * 2. Si no está en caché, consulta BD con JOIN a Pokemon
@@ -314,8 +314,8 @@ class FavoriteService
             }
 
             // Obtener image URL
-            $imageUrl = $data['sprites']['front_default'] ?? 
-                        $data['sprites']['other']['official-artwork']['front_default'] ?? 
+            $imageUrl = $data['sprites']['front_default'] ??
+                        $data['sprites']['other']['official-artwork']['front_default'] ??
                         null;
 
             return [
