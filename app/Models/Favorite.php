@@ -53,4 +53,14 @@ class Favorite extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    /**
+     * Relación: Un favorito pertenece a un pokémon
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function pokemon()
+    {
+        return $this->belongsTo(Pokemon::class);
+    }
 }
