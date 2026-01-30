@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PokemonController;
 use App\Http\Middleware\AuthRateLimiter;
 use Illuminate\Support\Facades\Route;
 
@@ -28,6 +29,17 @@ Route::prefix('api/v1')->group(function () {
 
     /*
     |--------------------------------------------------------------------------
+    | Rutas Públicas (Sin autenticación)
+    |--------------------------------------------------------------------------
+    */
+    
+    // Pokemon - Listado (público para todos)
+    Route::get('/pokemon', [PokemonController::class, 'index'])->name('pokemon.index');
+    Route::get('/pokemon/{id}', [PokemonController::class, 'show'])->name('pokemon.show');
+    Route::get('/pokemon/filters', [PokemonController::class, 'filters'])->name('pokemon.filters');
+
+    /*
+    |--------------------------------------------------------------------------
     | Rutas Protegidas por JWT
     |--------------------------------------------------------------------------
     */
@@ -39,10 +51,6 @@ Route::prefix('api/v1')->group(function () {
             Route::post('/refresh', [AuthController::class, 'refresh'])->name('auth.refresh');
             Route::get('/me', [AuthController::class, 'me'])->name('auth.me');
         });
-
-        // Pokemon (Por implementar en Prompt 3.2)
-        // Route::get('/pokemon', [PokemonController::class, 'index'])->name('pokemon.index');
-        // Route::get('/pokemon/{id}', [PokemonController::class, 'show'])->name('pokemon.show');
 
         // Favoritos (Por implementar en Prompt 3.3)
         // Route::post('/favorites', [FavoriteController::class, 'store'])->name('favorites.store');
