@@ -6,19 +6,30 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
 import { apiClient } from '@/lib/api';
 
-interface Pokemon {
+interface PokemonFavorite {
   id: number;
-  name: string;
+  user_id: number;
   pokemon_id: number;
-  image: string;
+  pokemon_name: string;
+  pokemon_type: string;
+  pokedex_id: number;
+  image_url: string | null;
+  description: string | null;
+  hp: number | null;
+  attack: number | null;
+  defense: number | null;
+  sp_attack: number | null;
+  sp_defense: number | null;
+  speed: number | null;
   created_at: string;
+  updated_at: string;
 }
 
 export default function FavoritesPage() {
   const { isLoading: authLoading } = useAuth();
   const { success, error: showError } = useToast();
 
-  const [favorites, setFavorites] = useState<Pokemon[]>([]);
+  const [favorites, setFavorites] = useState<PokemonFavorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEmpty, setIsEmpty] = useState(false);
 
@@ -31,9 +42,10 @@ export default function FavoritesPage() {
   const fetchFavorites = async () => {
     setIsLoading(true);
     try {
-      const data = await apiClient.get<Pokemon[]>('/favorites');
-      setFavorites(data);
-      setIsEmpty(data.length === 0);
+      const response = await apiClient.get<{ success: boolean; data: PokemonFavorite[] }>('/favorites');
+      const favoritesList = response.data || [];
+      setFavorites(favoritesList);
+      setIsEmpty(favoritesList.length === 0);
     } catch (err: any) {
       showError('Error al cargar los favoritos');
       setIsEmpty(true);
@@ -42,10 +54,10 @@ export default function FavoritesPage() {
     }
   };
 
-  const removeFavorite = async (id: number) => {
+  const removeFavorite = async (pokedexId: number) => {
     try {
-      await apiClient.delete(`/favorites/${id}`);
-      setFavorites(favorites.filter((fav) => fav.id !== id));
+      await apiClient.delete(`/favorites/${pokedexId}`);
+      setFavorites(favorites.filter((fav) => fav.pokedex_id !== pokedexId));
       success('Pokémon removido de favoritos');
     } catch (err: any) {
       showError('Error al remover el favorito');
@@ -99,10 +111,10 @@ export default function FavoritesPage() {
                 {favorites.map((pokemon) => (
                   <div key={pokemon.id} className="card hover:shadow-lg transition-shadow">
                     <div className="mb-4 aspect-square bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
-                      {pokemon.image ? (
+                      {pokemon.image_url ? (
                         <img
-                          src={pokemon.image}
-                          alt={pokemon.name}
+                          src={pokemon.image_url}
+                          alt={pokemon.pokemon_name}
                           className="w-full h-full object-cover"
                         />
                       ) : (
@@ -111,19 +123,37 @@ export default function FavoritesPage() {
                     </div>
 
                     <h3 className="text-lg font-bold mb-2 capitalize">
-                      {pokemon.name}
+                      {pokemon.pokemon_name}
                     </h3>
 
-                    <p className="text-sm text-gray-500 mb-4">
-                      ID: #{pokemon.pokemon_id}
+                    <p className="text-sm text-gray-600 mb-2">
+                      {pokemon.pokemon_type}
                     </p>
+
+                    <p className="text-sm text-gray-500 mb-4">
+                      ID: #{pokemon.pokedex_id}
+                    </p>
+
+                    {pokemon.description && (
+                      <p className="text-xs text-gray-600 mb-3 line-clamp-2">
+                        {pokemon.description}
+                      </p>
+                    )}
+
+                    {pokemon.hp !== null && (
+                      <div className="text-xs text-gray-600 mb-3 grid grid-cols-3 gap-1">
+                        <div>HP: {pokemon.hp}</div>
+                        <div>ATK: {pokemon.attack}</div>
+                        <div>DEF: {pokemon.defense}</div>
+                      </div>
+                    )}
 
                     <p className="text-xs text-gray-400 mb-4">
                       Añadido: {new Date(pokemon.created_at).toLocaleDateString()}
                     </p>
 
                     <button
-                      onClick={() => removeFavorite(pokemon.id)}
+                      onClick={() => removeFavorite(pokemon.pokedex_id)}
                       className="w-full btn btn-danger"
                     >
                       Remover ✕
