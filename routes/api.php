@@ -34,17 +34,18 @@ Route::prefix('v1')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    // Pokemon - Listado (público para todos)
-    Route::get('/pokemon', [PokemonController::class, 'index'])->name('pokemon.index');
-    Route::get('/pokemon/{id}', [PokemonController::class, 'show'])->name('pokemon.show');
+    // Pokemon - Rutas especiales PRIMERO, luego paramétrica, luego genérica
     Route::get('/pokemon/filters', [PokemonController::class, 'filters'])->name('pokemon.filters');
+    Route::get('/pokemon/types', [PokemonController::class, 'types'])->name('pokemon.types');
+    Route::get('/pokemon/{id}', [PokemonController::class, 'show'])->where('id', '[0-9]+')->name('pokemon.show');
+    Route::get('/pokemon', [PokemonController::class, 'index'])->name('pokemon.index');
 
     /*
     |--------------------------------------------------------------------------
-    | Rutas Protegidas por JWT
+    | Rutas Protegidas por token
     |--------------------------------------------------------------------------
     */
-    Route::middleware('auth:api')->group(function () {
+    Route::middleware('auth.token')->group(function () {
 
         // Autenticación
         Route::prefix('auth')->group(function () {
