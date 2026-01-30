@@ -19,9 +19,11 @@ class ApiClient {
         ? process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api'
         : 'http://localhost:8000/api';
 
+    console.log('API Client initialized with baseURL:', this.baseURL);
+
     this.client = axios.create({
       baseURL: this.baseURL,
-      timeout: 10000,
+      timeout: 60000, // 60 segundos para cargar todos los pokémon
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',

@@ -9,8 +9,11 @@ export interface User {
 }
 
 export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data: User;
   token: string;
-  user: User;
+  expires_in: number;
 }
 
 export interface LoginCredentials {
@@ -50,9 +53,9 @@ export const isAuthenticated = (): boolean => {
 export const login = async (credentials: LoginCredentials): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>('/auth/login', credentials);
 
-  if (response.token && response.user) {
+  if (response.token && response.data) {
     localStorage.setItem(TOKEN_KEY, response.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+    localStorage.setItem(USER_KEY, JSON.stringify(response.data));
   }
 
   return response;
@@ -64,9 +67,9 @@ export const register = async (
 ): Promise<AuthResponse> => {
   const response = await apiClient.post<AuthResponse>('/auth/register', credentials);
 
-  if (response.token && response.user) {
+  if (response.token && response.data) {
     localStorage.setItem(TOKEN_KEY, response.token);
-    localStorage.setItem(USER_KEY, JSON.stringify(response.user));
+    localStorage.setItem(USER_KEY, JSON.stringify(response.data));
   }
 
   return response;
