@@ -7,6 +7,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\ValidationException;
 use Exception;
 
 /**
@@ -94,8 +95,8 @@ class FavoriteController extends Controller
                 'pokemon_id.max' => 'El ID del pokémon debe ser menor a 150',
             ]);
 
-            // Obtener usuario autenticado
-            $user = Auth::user();
+            // Obtener usuario autenticado desde el request (configurado por AuthToken middleware)
+            $user = $request->user();
 
             // Agregar a favoritos
             $favorite = $this->favoriteService->addToFavorites(
@@ -109,6 +110,14 @@ class FavoriteController extends Controller
                 'message' => 'Pokemon added to favorites',
                 'timestamp' => now()->toIso8601String(),
             ], 201);
+        } catch (ValidationException $e) {
+            // Errores de validación (422)
+            return response()->json([
+                'success' => false,
+                'error' => 'Validation failed',
+                'message' => $e->getMessage(),
+                'timestamp' => now()->toIso8601String(),
+            ], 422);
         } catch (Exception $e) {
             // Errores conocidos (400, 409)
             if (in_array($e->getCode(), [400, 409])) {
@@ -122,16 +131,6 @@ class FavoriteController extends Controller
                     'error' => $e->getMessage(),
                     'timestamp' => now()->toIso8601String(),
                 ], $e->getCode() ?: 400);
-            }
-
-            // Errores de validación (422)
-            if ($e->getCode() === 422) {
-                return response()->json([
-                    'success' => false,
-                    'error' => 'Validation failed',
-                    'message' => $e->getMessage(),
-                    'timestamp' => now()->toIso8601String(),
-                ], 422);
             }
 
             // Errores de PokeAPI (503)
@@ -171,7 +170,7 @@ class FavoriteController extends Controller
      * @param int $pokemonId
      * @return JsonResponse
      */
-    public function destroy(int $pokemonId): JsonResponse
+    public function destroy(Request $request, int $pokemonId): JsonResponse
     {
         try {
             // Validar ID
@@ -183,8 +182,8 @@ class FavoriteController extends Controller
                 ], 400);
             }
 
-            // Obtener usuario autenticado
-            $user = Auth::user();
+            // Obtener usuario autenticado desde el request
+            $user = $request->user();
 
             // Eliminar de favoritos
             $this->favoriteService->removeFromFavorites($user, $pokemonId);
@@ -263,8 +262,8 @@ class FavoriteController extends Controller
                 'per_page' => 'integer|min:1|max:50',
             ]);
 
-            // Obtener usuario autenticado
-            $user = Auth::user();
+            // Obtener usuario autenticado desde el request
+            $user = $request->user();
 
             // Obtener favoritos
             $favorites = $this->favoriteService->getFavorites($user);

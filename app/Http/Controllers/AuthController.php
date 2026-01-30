@@ -16,7 +16,9 @@ class AuthController extends Controller
      */
     private function generateToken(User $user): string
     {
-        return hash('sha256', $user->id . '.' . Str::random(40) . '.' . now()->timestamp);
+        // Token en formato: userid.random.timestamp
+        // Sin hashear para que el middleware pueda extraer el userid
+        return $user->id . '.' . \Illuminate\Support\Str::random(40) . '.' . now()->timestamp;
     }
 
     /**

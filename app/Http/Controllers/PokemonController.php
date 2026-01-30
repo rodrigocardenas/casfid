@@ -75,18 +75,11 @@ class PokemonController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            // Validar y obtener parámetros
-            $validated = $request->validate([
-                'page' => 'integer|min:1',
-                'per_page' => 'integer|min:1|max:50',
-                'type' => 'string|max:20|nullable',
-                'search' => 'string|max:100|nullable',
-            ]);
-
-            $page = $validated['page'] ?? 1;
-            $perPage = $validated['per_page'] ?? 20;
-            $type = $validated['type'] ?? null;
-            $search = $validated['search'] ?? null;
+            // Validar y obtener parámetros - ser más leniente con los tipos
+            $page = max(1, (int)$request->query('page', 1));
+            $perPage = min(50, max(1, (int)$request->query('per_page', 20)));
+            $type = $request->query('type');
+            $search = $request->query('search');
 
             // Obtener pokémon
             $result = $this->pokemonService->getPokemonList(
@@ -177,12 +170,15 @@ class PokemonController extends Controller
      *   "timestamp": "2026-01-30T16:29:00Z"
      * }
      *
-     * @param int $id
+     * @param int|string $id
      * @return JsonResponse
      */
-    public function show(int $id): JsonResponse
+    public function show(int|string $id): JsonResponse
     {
         try {
+            // Convertir a int si es string
+            $id = (int) $id;
+            
             // Validar ID
             if ($id < 1 || $id > 150) {
                 return response()->json([
@@ -259,6 +255,26 @@ class PokemonController extends Controller
             'data' => [
                 'types' => $types,
             ],
+            'timestamp' => now()->toIso8601String(),
+        ], 200);
+    }
+
+    /**
+     * Get list of available Pokemon types
+     *
+     * @return JsonResponse
+     */
+    public function types(): JsonResponse
+    {
+        $types = [
+            'normal', 'fighting', 'flying', 'poison', 'ground', 'rock',
+            'bug', 'ghost', 'steel', 'fire', 'water', 'grass',
+            'electric', 'psychic', 'ice', 'dragon', 'dark', 'fairy'
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => $types,
             'timestamp' => now()->toIso8601String(),
         ], 200);
     }
